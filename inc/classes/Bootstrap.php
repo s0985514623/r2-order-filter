@@ -24,6 +24,8 @@ final class Bootstrap {
 	 */
 	public function __construct() {
 		Admin\Order::instance();
+		Api\Product::instance();
+		Api\Order::instance();
 
 		// \add_action( 'admin_enqueue_scripts', [ __CLASS__, 'admin_enqueue_script' ], 99 );
 		// \add_action( 'wp_enqueue_scripts', [ __CLASS__, 'frontend_enqueue_script' ], 99 );

@@ -52,6 +52,6 @@ export const getDataProviderUrlParams = (dataProvider: TDataProvider) => {
 		case 'wc-store':
 			return 'wc/store/v1'
 		default:
-			return 'wp/v2'
+			return 'wp-json'
 	}
 }

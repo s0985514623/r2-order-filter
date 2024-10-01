@@ -2,7 +2,7 @@ import { useState } from 'react'
 import reactLogo from '../assets/images/react.svg'
 import viteLogo from '../assets/images/vite.svg'
 import wpLogo from '../assets/images/wp.png'
-import GetRestPostsPage from './GetRestPosts'
+
 
 function DefaultPage() {
 	const [
@@ -50,8 +50,6 @@ function DefaultPage() {
 			<p className="read-the-docs">
 				Click on the Vite, React and WordPress logos to learn more
 			</p>
-
-			{showRestPosts && <GetRestPostsPage />}
 		</div>
 	)
 }

@@ -25,8 +25,10 @@ final class Order {
 
 	/**
 	 * 訂單篩選頁籤
+	 *
+	 * @return void
 	 */
-	public function r2_order_filter_page() {
+	public function r2_order_filter_page(): void {
 		add_menu_page(
 			'訂單篩選',       // 頁面標題
 			'訂單篩選',       // 菜單標題
@@ -39,15 +41,9 @@ final class Order {
 	/**
 	 * 訂單篩選頁面內容
 	 */
-	public function r2_order_filter_content() {
+	public function r2_order_filter_content(): void {
 		Bootstrap::enqueue_script();
 		echo '<div id="' . Plugin::$snake . '" class="my-app"></div>';
 		// $this->get_order();
-	}
-
-	/**
-	 * 取得訂單資料
-	 */
-	public function get_order() {
 	}
 }

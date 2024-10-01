@@ -23,6 +23,9 @@ declare global {
 	var wp: {
 		blocks: any
 	}
+	var orderData: {
+		orderDataArray: []
+	}
 }
 
 export {}
