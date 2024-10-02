@@ -3,7 +3,7 @@
  * Plugin Name:       R2 Order Filter
  * Plugin URI:        https://github.com/s0985514623/r2-order-filter
  * Description:       WooCommerce客製化訂單篩選
- * Version:           1.0.4
+ * Version:           1.0.5
  * Requires at least: 5.7
  * Requires PHP:      8.0
  * Author:            Ren
