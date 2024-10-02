@@ -176,6 +176,18 @@ final class Order {
 							$formate_orders[ $index ]['addGrownUp'] = ( $formate_orders[ $index ]['addGrownUp'] ?? 0 )+$item->get_quantity();
 						}
 						break;
+					case $product_id === 5618 || $product->get_name() === '營隊精華紀錄短片（60秒）':
+						$parent_product_id = $item->get_meta('parent_product_id');
+						if ( $variable_product_ids === $parent_product_id) {
+							$formate_orders[ $index ]['addVideo'] = ( $formate_orders[ $index ]['addVideo'] ?? 0 )+$item->get_quantity();
+						}
+						break;
+					case $product_id === 5620 || $product->get_name() === '實體A5相冊（20張照片）':
+						$parent_product_id = $item->get_meta('parent_product_id');
+						if ( $variable_product_ids === $parent_product_id) {
+							$formate_orders[ $index ]['addPhoto'] = ( $formate_orders[ $index ]['addPhoto'] ?? 0 )+$item->get_quantity();
+						}
+						break;
 					// 取得訂單資料與商品資料
 					default:
 						if ($parent_id && (int) $variable_product_ids === $parent_id && $product->is_type( 'variation' )) {

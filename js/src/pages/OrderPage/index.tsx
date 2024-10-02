@@ -118,9 +118,13 @@ const MemberPage: React.FC = () => {
 						let totalGrownUp = 0
 						let totalChild = 0
 						let totalQty = 0
+						let totalVideo = 0
+						let totalPhoto = 0
 						pageData.map((record) => {
 							const addGrownUp = record.addGrownUp ?? 0
 							const addChild = record.addChild ?? 0
+							const addVideo = record.addVideo ?? 0
+							const addPhoto = record.addPhoto ?? 0
 							const productQty =
 								record.products?.reduce(
 									(accumulator: number, currentValue: Product) => {
@@ -130,6 +134,8 @@ const MemberPage: React.FC = () => {
 								) ?? 0
 							totalGrownUp += addGrownUp
 							totalChild += addChild
+							totalVideo += addVideo
+							totalPhoto += addPhoto
 							totalQty += productQty
 						})
 
@@ -145,6 +151,8 @@ const MemberPage: React.FC = () => {
 									{totalGrownUp}
 								</Table.Summary.Cell>
 								<Table.Summary.Cell index={7}>{totalChild}</Table.Summary.Cell>
+								<Table.Summary.Cell index={8}>{totalVideo}</Table.Summary.Cell>
+								<Table.Summary.Cell index={9}>{totalPhoto}</Table.Summary.Cell>
 							</Table.Summary.Row>
 						)
 					}}
@@ -228,6 +236,24 @@ const MemberPage: React.FC = () => {
 							return addChildQty
 						}}
 					/>
+					<Table.Column
+						width={150}
+						title="加購商品活動影片"
+						dataIndex="addVideo"
+						render={(addChild, record) => {
+							const addChildQty = addChild ?? 0
+							return addChildQty
+						}}
+					/>
+					<Table.Column
+					width={150}
+					title="加購商品活動相片"
+					dataIndex="addPhoto"
+					render={(addChild, record) => {
+						const addChildQty = addChild ?? 0
+						return addChildQty
+					}}
+				/>
 					<Table.Column width={100} title="訂單金額" dataIndex="total" />
 					<Table.Column
 						width={125}

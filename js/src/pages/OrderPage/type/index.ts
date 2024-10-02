@@ -6,6 +6,8 @@ export type OrdersDataArray = {
 	note?: string
 	addChild?: number
 	addGrownUp?: number
+	addVideo?: number
+	addPhoto?: number
 	products?:Product[]
 	billing?:{
 		billing_kid_name_one?: string
