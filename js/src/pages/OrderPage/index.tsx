@@ -75,7 +75,7 @@ const MemberPage: React.FC = () => {
 		// 展平了多維陣列
 		const products = ordersData?.flatMap((item) =>
 			item?.products?.map((product) => ({
-				text: product.name,
+				text: product.attributes_string,
 				value: product.id,
 			})),
 		)
@@ -117,7 +117,10 @@ const MemberPage: React.FC = () => {
 					summary={(pageData) => {
 						let totalGrownUp = 0
 						let totalChild = 0
+						let totalQty = 0
 						pageData.map((record) => {
+							const addGrownUp = record.addGrownUp ?? 0
+							const addChild = record.addChild ?? 0
 							const productQty =
 								record.products?.reduce(
 									(accumulator: number, currentValue: Product) => {
@@ -125,10 +128,9 @@ const MemberPage: React.FC = () => {
 									},
 									0,
 								) ?? 0
-							const addGrownUp = record.addGrownUp ?? 0
-							const addChild = record.addChild ?? 0
-							totalGrownUp = totalGrownUp + addGrownUp + productQty
-							totalChild = totalChild + addChild + productQty
+							totalGrownUp += addGrownUp
+							totalChild += addChild
+							totalQty += productQty
 						})
 
 						return (
@@ -137,10 +139,12 @@ const MemberPage: React.FC = () => {
 								<Table.Summary.Cell index={1}>總計</Table.Summary.Cell>
 								<Table.Summary.Cell index={2}></Table.Summary.Cell>
 								<Table.Summary.Cell index={3}></Table.Summary.Cell>
-								<Table.Summary.Cell index={4}>
+								<Table.Summary.Cell index={4}></Table.Summary.Cell>
+								<Table.Summary.Cell index={5}>{totalQty}</Table.Summary.Cell>
+								<Table.Summary.Cell index={6}>
 									{totalGrownUp}
 								</Table.Summary.Cell>
-								<Table.Summary.Cell index={5}>{totalChild}</Table.Summary.Cell>
+								<Table.Summary.Cell index={7}>{totalChild}</Table.Summary.Cell>
 							</Table.Summary.Row>
 						)
 					}}
@@ -149,7 +153,7 @@ const MemberPage: React.FC = () => {
 					<Table.Column
 						title="訂單編號"
 						dataIndex="number"
-						width={125}
+						width={100}
 						render={(number, record) => {
 							return (
 								<a href={`${record?.edit_link}`} target="_blank">
@@ -159,13 +163,26 @@ const MemberPage: React.FC = () => {
 						}}
 					/>
 					<Table.Column
-						title="場次"
+						title="活動名稱"
 						dataIndex="products"
 						render={(products: Product[]) => {
 							return (
 								<Space size="small" wrap>
-									{products.map((product: any) => (
+									{products.map((product) => (
 										<Tag key={product.id}>{product.name}</Tag>
+									))}
+								</Space>
+							)
+						}}
+					/>
+					<Table.Column
+						title="場次梯次"
+						dataIndex="products"
+						render={(products: Product[]) => {
+							return (
+								<Space size="small" wrap>
+									{products.map((product) => (
+										<Tag key={product.id}>{product.attributes_string}</Tag>
 									))}
 								</Space>
 							)
@@ -178,33 +195,35 @@ const MemberPage: React.FC = () => {
 						}}
 					/>
 					<Table.Column
-						width={75}
-						title="大人"
-						dataIndex="addGrownUp"
-						render={(addGrownUp, record) => {
-							const addGrownUpQty = addGrownUp ?? 0
-							const recordQty = record?.products?.reduce(
-								(accumulator: number, currentValue: Product) => {
-									return accumulator + currentValue?.qty
-								},
-								0,
+						width={125}
+						title="數量"
+						dataIndex="products"
+						render={(products: Product[]) => {
+							return (
+								<>
+									{products.map((product) => (
+										<>{product.qty}</>
+									))}
+								</>
 							)
-							return recordQty + addGrownUpQty
 						}}
 					/>
 					<Table.Column
-						width={75}
-						title="小孩"
+						width={125}
+						title="加購商品大人"
+						dataIndex="addGrownUp"
+						render={(addGrownUp, record) => {
+							const addGrownUpQty = addGrownUp ?? 0
+							return addGrownUpQty
+						}}
+					/>
+					<Table.Column
+						width={125}
+						title="加購商品小孩"
 						dataIndex="addChild"
 						render={(addChild, record) => {
 							const addChildQty = addChild ?? 0
-							const recordQty = record?.products?.reduce(
-								(accumulator: number, currentValue: Product) => {
-									return accumulator + currentValue?.qty
-								},
-								0,
-							)
-							return recordQty + addChildQty
+							return addChildQty
 						}}
 					/>
 					<Table.Column width={100} title="訂單金額" dataIndex="total" />

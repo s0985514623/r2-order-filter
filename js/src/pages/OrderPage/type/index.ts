@@ -38,6 +38,7 @@ export type Product ={
 	id: number
 	name: string
 	qty: number
+	attributes_string: string
 }
 
 export type ProductDataArray ={

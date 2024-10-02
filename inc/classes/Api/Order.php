@@ -157,11 +157,11 @@ final class Order {
 			/** @var \WC_Order_Item_Product $item */
 			foreach ($order->get_items() as $item_id => $item) {
 				// 取得商品物件
-				/** @var \WC_Product $product */
+				/** @var \WC_Product|\WC_Product_Variation $product */
 				$product    = $item->get_product();
 				$product_id = $product->get_id();
 				// 改成只取得篩選的活動商品
-				$parent_id  = $product->get_parent_id();
+				$parent_id = $product->get_parent_id();
 				switch (true) {
 					// 如果是大人或小孩，則記錄在parent_variation_id欄位上
 					case $product_id === 3943 || $product->get_name() === '小孩':
@@ -169,29 +169,32 @@ final class Order {
 						if ( $variable_product_ids === $parent_product_id) {
 							$formate_orders[ $index ]['addChild'] = ( $formate_orders[ $index ]['addChild'] ?? 0 ) + $item->get_quantity();
 						}
-						// $formate_orders[ $index ]['addChild'] = ( $formate_orders[ $index ]['addChild'] ?? 0 ) + $item->get_quantity();
 						break;
 					case $product_id === 3941 || $product->get_name() === '大人':
 						$parent_product_id = $item->get_meta('parent_product_id');
 						if ( $variable_product_ids === $parent_product_id) {
 							$formate_orders[ $index ]['addGrownUp'] = ( $formate_orders[ $index ]['addGrownUp'] ?? 0 )+$item->get_quantity();
 						}
-						// $formate_orders[ $index ]['addGrownUp'] = ( $formate_orders[ $index ]['addGrownUp'] ?? 0 )+$item->get_quantity();
 						break;
 					// 取得訂單資料與商品資料
 					default:
-						if ( (int) $variable_product_ids === $parent_id) {
+						if ($parent_id && (int) $variable_product_ids === $parent_id && $product->is_type( 'variation' )) {
+							$parent_product = wc_get_product( $parent_id );
+							// 取得變體屬性
+							$attributes        = $product->get_attributes();
+							$attributes_values =[];
+							foreach ($attributes as $key => $value) {
+								$attributes_values[] = $value;
+							}
+							$attributes_string = \implode( ', ', $attributes_values );
+							// 記錄商品資料
 							$formate_orders[ $index ]['products'][] = [
-								'id'   => $product_id,
-								'name' => $product->get_name(),
-								'qty'  => $item->get_quantity(),
+								'id'                => $product_id,
+								'name'              => $parent_product->get_name(),
+								'attributes_string' => $attributes_string,
+								'qty'               => $item->get_quantity(),
 							];
 						}
-						// $formate_orders[ $index ]['products'][] = [
-						// 'id'   => $product_id,
-						// 'name' => $product->get_name(),
-						// 'qty'  => $item->get_quantity(),
-						// ];
 
 						break;
 				}
