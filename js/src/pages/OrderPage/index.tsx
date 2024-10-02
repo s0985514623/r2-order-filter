@@ -199,11 +199,13 @@ const MemberPage: React.FC = () => {
 						title="數量"
 						dataIndex="products"
 						render={(products: Product[]) => {
+							let totalQty = 0
+							products.map((product) => {
+								totalQty += product.qty
+								})
 							return (
 								<>
-									{products.map((product) => (
-										<>{product.qty}</>
-									))}
+									{totalQty}
 								</>
 							)
 						}}
