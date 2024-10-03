@@ -53,9 +53,10 @@ const MemberPage: React.FC = () => {
 	//處理Filter返回的資料
 	const handleFilterChange = (newFilter: any) => {
 		// setFilter(newFilter) // 更新父组件的筛选条件
-		console.log(newFilter)
+		// console.log(newFilter)
 		setFilter({
-			...filter,
+			initial_date: newFilter.dateRange[0].format('YYYY-MM-DD'),
+			final_date: newFilter.dateRange[1].format('YYYY-MM-DD'),
 			variable_product_ids: newFilter.products ?? undefined,
 		})
 		fetchData({
@@ -64,7 +65,8 @@ const MemberPage: React.FC = () => {
 				pageSize: -1,
 			},
 			filter: {
-				...filter,
+				initial_date: newFilter.dateRange[0].format('YYYY-MM-DD'),
+				final_date: newFilter.dateRange[1].format('YYYY-MM-DD'),
 				variable_product_ids: newFilter.products ?? undefined,
 			},
 		})
@@ -210,12 +212,8 @@ const MemberPage: React.FC = () => {
 							let totalQty = 0
 							products.map((product) => {
 								totalQty += product.qty
-								})
-							return (
-								<>
-									{totalQty}
-								</>
-							)
+							})
+							return <>{totalQty}</>
 						}}
 					/>
 					<Table.Column
@@ -246,14 +244,14 @@ const MemberPage: React.FC = () => {
 						}}
 					/>
 					<Table.Column
-					width={150}
-					title="加購商品活動相片"
-					dataIndex="addPhoto"
-					render={(addChild, record) => {
-						const addChildQty = addChild ?? 0
-						return addChildQty
-					}}
-				/>
+						width={150}
+						title="加購商品活動相片"
+						dataIndex="addPhoto"
+						render={(addChild, record) => {
+							const addChildQty = addChild ?? 0
+							return addChildQty
+						}}
+					/>
 					<Table.Column width={100} title="訂單金額" dataIndex="total" />
 					<Table.Column
 						width={125}
