@@ -157,8 +157,11 @@ final class Order {
 			/** @var \WC_Order_Item_Product $item */
 			foreach ($order->get_items() as $item_id => $item) {
 				// 取得商品物件
-				/** @var \WC_Product|\WC_Product_Variation $product */
-				$product    = $item->get_product();
+				/** @var \WC_Product|\WC_Product_Variation|bool $product */
+				$product = $item->get_product();
+				if (!$product) {
+					continue;
+				}
 				$product_id = $product->get_id();
 				// 改成只取得篩選的活動商品
 				$parent_id = $product->get_parent_id();
