@@ -194,12 +194,46 @@ final class Order {
 							$formate_orders[ $index ]['addPhoto'] = ( $formate_orders[ $index ]['addPhoto'] ?? 0 )+$item->get_quantity();
 						}
 						break;
-					// 例外情況:如果不是變化類型，但是商品ID符合，則記錄商品並跳出迴圈
+					// 例外情況:如果不是變化類型，但是商品ID符合，則從item meta取得要匹配的屬性值，並找到匹配的變化類型 ID
 					case $product_id && (int) $variable_product_ids === $product_id:
-						// 從$item meta取得屬性
-						$attributes_1      = $item->get_meta('場次', true);
-						$attributes_2      = $item->get_meta('梯次', true);
-						$attributes_string = $attributes_1 . ', ' . $attributes_2;
+						$attributes_values =[];
+						// 從$item meta取得要匹配的屬性值
+						$attributes_to_match = [
+							strtolower(rawurlencode('場次')) => $item->get_meta('場次', true),
+							strtolower(rawurlencode('梯次')) => $item->get_meta('梯次', true),
+						];
+						if ($product && $product->is_type('variable')) {
+							// 獲取所有變化類型
+							$variations = $product->get_children();
+							foreach ($variations as $variation_id) {
+								// 獲取變化類型對象
+								$variation = wc_get_product($variation_id);
+								if ($variation) {
+									// 獲取變化類型的屬性
+									$variation_attributes = $variation->get_attributes();
+									// 檢查屬性是否匹配
+									$is_match = true;
+									foreach ($attributes_to_match as $attribute_name => $attribute_value) {
+										if (!isset($variation_attributes[ $attribute_name ]) || $variation_attributes[ $attribute_name ] !== $attribute_value) {
+											$is_match = false;
+											break;
+										}
+									}
+									if ($is_match) {
+										// 找到匹配的變化類型 ID
+										// 取得變體屬性
+										foreach ($variation_attributes as $key => $value) {
+											$attributes_values[] = $value;
+										}
+										// 記錄商品 ID
+										$product_id = $variation_id;
+										break; // 結束迴圈
+									}
+								}
+							}
+						}
+						// 組合變體屬性名稱
+						$attributes_string = \implode( ', ', $attributes_values );
 
 						$formate_orders[ $index ]['products'][] = [
 							'id'                => $product_id,
