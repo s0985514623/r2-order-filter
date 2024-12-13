@@ -105,8 +105,11 @@ final class Order {
 							if ($parent_id === (int) $variable_product_ids) {
 								$get_orders[] = $order;
 								break;
-
 							}
+						} elseif ($product && $product->get_id() === (int) $variable_product_ids) {
+							// 例外情況:如果不是變化類型，但是商品ID符合，則記錄訂單並跳出迴圈
+							$get_orders[] = $order;
+							break;
 						}
 					}
 				}
@@ -190,6 +193,20 @@ final class Order {
 						if ( $variable_product_ids === $parent_product_id) {
 							$formate_orders[ $index ]['addPhoto'] = ( $formate_orders[ $index ]['addPhoto'] ?? 0 )+$item->get_quantity();
 						}
+						break;
+					// 例外情況:如果不是變化類型，但是商品ID符合，則記錄商品並跳出迴圈
+					case $product_id && (int) $variable_product_ids === $product_id:
+						// 從$item meta取得屬性
+						$attributes_1      = $item->get_meta('場次', true);
+						$attributes_2      = $item->get_meta('梯次', true);
+						$attributes_string = $attributes_1 . ',' . $attributes_2;
+
+						$formate_orders[ $index ]['products'][] = [
+							'id'                => $product_id,
+							'name'              => $product->get_name(),
+							'attributes_string' => $attributes_string,
+							'qty'               => $item->get_quantity(),
+						];
 						break;
 					// 取得訂單資料與商品資料
 					default:
