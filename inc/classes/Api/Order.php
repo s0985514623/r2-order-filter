@@ -199,7 +199,7 @@ final class Order {
 						// 從$item meta取得屬性
 						$attributes_1      = $item->get_meta('場次', true);
 						$attributes_2      = $item->get_meta('梯次', true);
-						$attributes_string = $attributes_1 . ',' . $attributes_2;
+						$attributes_string = $attributes_1 . ', ' . $attributes_2;
 
 						$formate_orders[ $index ]['products'][] = [
 							'id'                => $product_id,
