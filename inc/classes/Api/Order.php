@@ -249,7 +249,16 @@ final class Order {
 							// 取得變體屬性
 							$attributes        = $product->get_attributes();
 							$attributes_values =[];
+							$series_value      ='';
 							foreach ($attributes as $key => $value) {
+								if ($key === 'pa_series') {
+									$series_value = rawurldecode($value);
+									continue;
+								}
+								if (strpos($key, 'pa_') !== false) {
+									$attributes_values[] = rawurldecode($value);
+									continue;
+								}
 								$attributes_values[] = $value;
 							}
 							$attributes_string = \implode( ', ', $attributes_values );
@@ -257,6 +266,7 @@ final class Order {
 							$formate_orders[ $index ]['products'][] = [
 								'id'                => $product_id,
 								'name'              => $parent_product->get_name(),
+								'series_value'      => $series_value,
 								'attributes_string' => $attributes_string,
 								'qty'               => $item->get_quantity(),
 							];

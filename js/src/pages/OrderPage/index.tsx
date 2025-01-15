@@ -20,6 +20,7 @@ const MemberPage: React.FC = () => {
 		resource: 'orders',
 	})
 	const [productsFilters, setProductsFilters] = useState<any[]>([])
+	const [productsSeriesFilters, setProductsSeriesFilters] = useState<any[]>([])
 	// console.log('🚀 ~ ordersData:', ordersData)
 
 	const [
@@ -90,6 +91,24 @@ const MemberPage: React.FC = () => {
 			value: value?.value as React.Key,
 		}))
 	}
+	// 新增系列欄位篩選值
+	const getUniqueSeriesFilters = () => {
+		// 展平了多維陣列
+		const products = ordersData?.flatMap((item) =>
+			item?.products?.map((product) => ({
+				text: product.series_value,
+				value: product.id,
+			})),
+		)
+		// 使用 Map 進行去重，再用values() 取值，轉回陣列
+		const uniqueProducts = [
+			...new Map(products.map((product) => [product?.value, product])).values(),
+		]
+		return uniqueProducts.map((value) => ({
+			text: value?.text,
+			value: value?.value as React.Key,
+		}))
+	}
 	// Table 分頁、排序、篩選
 	const handleTableChange = (pagination: any, filters: any, sorter: any) => {}
 	// 首次載入
@@ -101,7 +120,11 @@ const MemberPage: React.FC = () => {
 	}, [])
 	// 資料載入完畢後更新 pagination
 	useEffect(() => {
-		if (ordersData.length > 0) setProductsFilters(getUniqueFilters())
+		if (ordersData.length > 0)
+		{
+			setProductsFilters(getUniqueFilters())
+			setProductsSeriesFilters(getUniqueSeriesFilters())
+			}
 	}, [isLoading])
 
 	return (
@@ -185,6 +208,25 @@ const MemberPage: React.FC = () => {
 							)
 						}}
 					/>
+					<Table.Column
+					title="系列"
+					dataIndex="products"
+					render={(products: Product[]) => {
+						return (
+							<Space size="small" wrap>
+								{products.map((product) => (
+									<Tag key={product.id}>{product.series_value}</Tag>
+								))}
+							</Space>
+						)
+					}}
+					filters={productsSeriesFilters}
+					onFilter={(value, record) => {
+						return record.products.some(
+							(product: Product) => product.id === value,
+						)
+					}}
+				/>
 					<Table.Column
 						title="場次梯次"
 						dataIndex="products"
