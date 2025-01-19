@@ -21,7 +21,7 @@ const MemberPage: React.FC = () => {
 	})
 	const [productsFilters, setProductsFilters] = useState<any[]>([])
 	const [productsSeriesFilters, setProductsSeriesFilters] = useState<any[]>([])
-	// console.log('🚀 ~ ordersData:', ordersData)
+	console.log('🚀 ~ ordersData:', ordersData)
 
 	const [
 		selectedRowKeys,

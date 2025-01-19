@@ -250,7 +250,14 @@ final class Order {
 							$attributes        = $product->get_attributes();
 							$attributes_values =[];
 							$series_value      ='';
+							// TEST 記得刪除
+							$test_msg =[];
 							foreach ($attributes as $key => $value) {
+								// TEST 記得刪除
+								$test_msg[] =[
+									'key'   =>$key,
+									'value' =>$value,
+								];
 								if ($key === 'pa_series') {
 									$series_value = rawurldecode($value);
 									continue;
@@ -261,6 +268,7 @@ final class Order {
 								}
 								$attributes_values[] = $value;
 							}
+
 							$attributes_string = \implode( ', ', $attributes_values );
 							// 記錄商品資料
 							$formate_orders[ $index ]['products'][] = [
@@ -269,6 +277,7 @@ final class Order {
 								'series_value'      => $series_value,
 								'attributes_string' => $attributes_string,
 								'qty'               => $item->get_quantity(),
+								'$test_msg'         =>$test_msg,
 							];
 						}
 
