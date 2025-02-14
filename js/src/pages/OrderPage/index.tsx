@@ -171,13 +171,14 @@ const MemberPage: React.FC = () => {
 								<Table.Summary.Cell index={2}></Table.Summary.Cell>
 								<Table.Summary.Cell index={3}></Table.Summary.Cell>
 								<Table.Summary.Cell index={4}></Table.Summary.Cell>
-								<Table.Summary.Cell index={5}>{totalQty}</Table.Summary.Cell>
-								<Table.Summary.Cell index={6}>
+								<Table.Summary.Cell index={5}></Table.Summary.Cell>
+								<Table.Summary.Cell index={6}>{totalQty}</Table.Summary.Cell>
+								<Table.Summary.Cell index={7}>
 									{totalGrownUp}
 								</Table.Summary.Cell>
-								<Table.Summary.Cell index={7}>{totalChild}</Table.Summary.Cell>
-								<Table.Summary.Cell index={8}>{totalVideo}</Table.Summary.Cell>
-								<Table.Summary.Cell index={9}>{totalPhoto}</Table.Summary.Cell>
+								<Table.Summary.Cell index={8}>{totalChild}</Table.Summary.Cell>
+								<Table.Summary.Cell index={9}>{totalVideo}</Table.Summary.Cell>
+								<Table.Summary.Cell index={10}>{totalPhoto}</Table.Summary.Cell>
 							</Table.Summary.Row>
 						)
 					}}
