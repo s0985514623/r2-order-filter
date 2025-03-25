@@ -16,7 +16,7 @@ type fetchParams = {
 	filter?: {
 		initial_date?: string
 		final_date?: string
-		variable_product_ids?: string[]
+		search_product_id?: string[]
 	}
 	pagination?: {
 		current: number

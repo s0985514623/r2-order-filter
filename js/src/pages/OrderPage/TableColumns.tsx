@@ -4,62 +4,75 @@ import { Space, Tag } from 'antd'
 
 export const columnsSetting: ColumnsType<OrdersDataArray> = [
 	{
-		title: '訂單時間',
-		dataIndex: 'date',
-		key: 'date',
+		title: '學員資料',
+		children: [
+      {
+        title: '姓名',
+        dataIndex: 'child_name',
+        key: 'child_name',
+        // width: 200,
+      },
+      {
+        title: '年級',
+        dataIndex: 'grade',
+        key: 'grade',
+      },
+			{
+        title: '健康/飲食',
+        dataIndex: 'child_dietary',
+        key: 'child_dietary',
+      },
+			{
+        title: '身分證',
+        dataIndex: 'child_id_number',
+        key: 'child_id_number',
+      },
+			{
+        title: '出生年月日',
+        dataIndex: 'child_dob',
+        key: 'child_dob',
+      },
+    ],
 	},
 	{
-		title: '訂單編號',
-		dataIndex: 'number',
-		key: 'number',
+		title:'家長資料',
+		children: [
+      {
+        title: '家長',
+        dataIndex: 'adult_name',
+        key: 'adult_name',
+        // width: 200,
+      },
+      {
+        title: '聯絡電話',
+        dataIndex: 'adult_phone',
+        key: 'adult_phone',
+      },
+			{
+        title: 'Email',
+        dataIndex: 'adult_email',
+        key: 'adult_email',
+      },
+    ],
 	},
 	{
-		title: '場次',
-		dataIndex: 'products',
-		key: 'products',
-		render: (products: Product[]) => {
-			return (
-				<Space size="small" wrap>
-					{products.map((product: any) => (
-						<Tag key={product.id}>{product.name}</Tag>
-					))}
-				</Space>
-			)
-		},
-	},
-	{
-		title: '大人',
-		dataIndex: 'addGrownUp',
-		key: 'addGrownUp',
-		render: (addGrownUp, record) => {
-			const addGrownUpQty =addGrownUp??0
-			const recordQty = record?.products?.reduce(
-				(accumulator, currentValue) => {
-					return accumulator + currentValue?.qty
-				},
-				0,
-			)
-			return recordQty+addGrownUpQty
-		},
-	},
-	{
-		title: '小孩',
-		dataIndex: 'addChild',
-		key: 'addChild',
-		render: (addChild, record) => {
-			const addChildQty =addChild??0
-			const recordQty = record?.products?.reduce(
-				(accumulator, currentValue) => {
-					return accumulator + currentValue?.qty
-				},
-				0,
-			)
-			return recordQty+addChildQty
-		},
-	},
-	{
-		title: '訂單金額',
-		dataIndex: 'total',
-		key: 'total',
-	},
+		title:'訂單資料',
+		children: [
+      {
+        title: '訂單編號',
+        dataIndex: 'number',
+        key: 'number',
+        // width: 200,
+				render: (text, record) => (
+					<a href={record.edit_link}  target="_blank">{text}</a>
+				),
+      },
+      {
+        title: '繳費狀態',
+        dataIndex: 'status_label',
+        key: 'status_label',
+      },
+		]
+	}
+
 ]

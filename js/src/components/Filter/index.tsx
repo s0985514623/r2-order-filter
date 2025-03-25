@@ -54,7 +54,7 @@ const index: React.FC<{ onFilter: (values: any) => void }> = ({ onFilter }) => {
 			</div>
 			<Form.Item className="mt-6">
 				<Button type="primary" htmlType="submit" className="w-full">
-					篩選
+					送出
 				</Button>
 			</Form.Item>
 		</Form>
@@ -70,7 +70,7 @@ const index: React.FC<{ onFilter: (values: any) => void }> = ({ onFilter }) => {
 					key: 'filters',
 					label: (
 						<span className="font-semibold text-base relative -top-0.5">
-							訂單篩選
+							Step1 取得訂單
 						</span>
 					),
 					children,

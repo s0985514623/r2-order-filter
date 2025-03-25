@@ -64,11 +64,11 @@ final class Order {
 	 */
 	public function get_orders_callback( $request ) {
 		// phpcs:@phpstan-ignore-next-line
-		$params               = $request->get_query_params() ?? [];
-		$params               = WP::sanitize_text_field_deep( $params, false );
-		$variable_product_ids =isset($params['variable_product_ids'])?$params['variable_product_ids']:0;
-		$initial_date         =isset($params['initial_date'])?$params['initial_date']:null;
-		$final_date           =isset($params['final_date'])?$params['final_date']:null;
+		$params            = $request->get_query_params() ?? [];
+		$params            = WP::sanitize_text_field_deep( $params, false );
+		$search_product_id =isset($params['search_product_id'])?$params['search_product_id']:0;
+		$initial_date      =isset($params['initial_date'])?$params['initial_date']:null;
+		$final_date        =isset($params['final_date'])?$params['final_date']:null;
 		// 使用 wc_get_orders 取得所有商品
 		$args = [
 			'limit'  => isset($params['posts_per_page'])?$params['posts_per_page']:-1, // -1 表示取得所有商品
@@ -87,27 +87,16 @@ final class Order {
 		// 檢查是否有商品
 		if ($orders && \is_array($orders)) {
 			// 如果傳入product_id，則只取得符合的訂單，否則取得所有訂單
-			if ($variable_product_ids === 0) {
+			if ($search_product_id === 0) {
 				$get_orders = $orders;
 			} else {
 				foreach ($orders as $order) {
 					// 取得商品資料
 					/** @var \WC_Order_Item_Product $item */
 					foreach ($order->get_items() as $item_id => $item) {
-						// 取得商品物件
-						/** @var \WC_Product $product */
-						$product = $item->get_product();
-						// 檢查商品是否為變化商品
-						if ($product && $product->is_type('variation')) {
-							// 取得變化商品的主商品 (父商品) ID
-							$parent_id = $product->get_parent_id();
-							// 如果商品符合，則記錄訂單並跳出迴圈
-							if ($parent_id === (int) $variable_product_ids) {
-								$get_orders[] = $order;
-								break;
-							}
-						} elseif ($product && $product->get_id() === (int) $variable_product_ids) {
-							// 例外情況:如果不是變化類型，但是商品ID符合，則記錄訂單並跳出迴圈
+						// 取得product_id
+						$product_id = $item->get_product_id();
+						if ($product_id === (int) $search_product_id) {
 							$get_orders[] = $order;
 							break;
 						}
@@ -120,164 +109,63 @@ final class Order {
 		$formate_orders = [];
 		$index          = 0;
 		foreach ($get_orders as $order) {
-			$order_number             = $order->get_order_number();
-			$formate_orders[ $index ] = [
-				'key'       => $order_number,
-				'number'    => $order_number,
-				'edit_link' =>get_edit_post_link($order->get_id()), // 取得編輯連結
-				'date'      => $order->get_date_created()?$order->get_date_created()->date('Y-m-d'):'null',
-				'total'     => $order->get_total(),
-				'note'      => $order->get_customer_note(),
-				// 取得 Billing 欄位資料
-				'billing'   =>[
-					'billing_kid_name_one'            =>$order->get_meta('billing_kid_name_one'),
-					'billing_gender_one'              =>$order->get_meta('billing_gender_one'),
-					'billing_grade_one'               =>$order->get_meta('billing_grade_one'),
-					'billing_birthday_one'            =>$order->get_meta('billing_birthday_one'),
-					'billing_kid_id_one'              =>$order->get_meta('billing_kid_id_one'),
-					'billing_food_preferences_one'    =>$order->get_meta('billing_food_preferences_one'),
-					'billing_emergency_contact_name'  =>$order->get_meta('billing_emergency_contact_name'),
-					'billing_emergency_contact_phone' =>$order->get_meta('billing_emergency_contact_phone'),
-					'billing_parent_line_id'          =>$order->get_meta('billing_parent_line_id'),
-					'billing_line_name'               =>$order->get_meta('billing_line_name'),
-					'billing_is_group_registration'   =>$order->get_meta('billing_is_group_registration'),
-					'billing_source'                  =>$order->get_meta('billing_source'),
-					'billing_kid_name_two'            =>$order->get_meta('billing_kid_name_two'),
-					'billing_gender_two'              =>$order->get_meta('billing_gender_two'),
-					'billing_grade_two'               =>$order->get_meta('billing_grade_two'),
-					'billing_birthday_two'            =>$order->get_meta('billing_birthday_two'),
-					'billing_kid_id_two'              =>$order->get_meta('billing_kid_id_two'),
-					'billing_food_preferences_two'    =>$order->get_meta('billing_food_preferences_two'),
-					'billing_kid_name_three'          =>$order->get_meta('billing_kid_name_three'),
-					'billing_gender_three'            =>$order->get_meta('billing_gender_three'),
-					'billing_grade_three'             =>$order->get_meta('billing_grade_three'),
-					'billing_birthday_three'          =>$order->get_meta('billing_birthday_three'),
-					'billing_kid_id_three'            =>$order->get_meta('billing_kid_id_three'),
-					'billing_food_preferences_three'  =>$order->get_meta('billing_food_preferences_three'),
-				],
-			];
-			// 取得商品資料
+			// 取得商品資料 =>改寫整個迴圈
 			/** @var \WC_Order_Item_Product $item */
 			foreach ($order->get_items() as $item_id => $item) {
-				// 取得商品物件
-				/** @var \WC_Product|\WC_Product_Variation|bool $product */
+				// 取得商品資料
 				$product = $item->get_product();
-				if (!$product) {
-					continue;
+				// 取得product_id $product_id 即為parent_id
+				$product_id = $item->get_product_id();
+				// 取得parent_product_id 和 parent_variation_id(如果為加購商品)
+				$parent_product_id   = (int) $item->get_meta('parent_product_id');
+				$parent_variation_id = (int) $item->get_meta('parent_variation_id');
+				// 取得小孩資料
+				$child_data = $this->get_child_info_array($item_id);
+				// 取得大人資料
+				$adult_data = $this->get_adult_info_array($item_id);
+				// 取得訂單編號
+				$order_number = $order->get_order_number();
+				// 格式化訂單資料
+				$formate_orders[ $index ] = [
+					// 訂單資料
+					'product_name'    => $product->get_name(),
+					'number'          => $order_number,
+					'edit_link'       => get_edit_post_link($order->get_id()), // 取得編輯連結
+					// 'date'      => $order->get_date_created()?$order->get_date_created()->date('Y-m-d'):'null',
+					// 'total'     => $order->get_total(),
+					// 'note'      => $order->get_customer_note(),
+					'status'          => $order->get_status(),
+					'status_label'    => wc_get_order_status_name($order->get_status()),
+					// 家長資料
+					'adult_name'      => $order->get_billing_first_name(),
+					'adult_email'     => $order->get_billing_email(),
+					'adult_phone'     => $order->get_billing_phone(),
+					// 學員資料
+					'key'             =>$index,
+					'group'           =>0,
+					'child_name'      => $child_data['child_name'] ?? '',
+					'grade'           => '',
+					'child_dietary'   => $child_data['child_dietary'] ?? '',
+					'child_id_number' => $child_data['child_id_number'] ?? '',
+					'child_dob'       => $child_data['child_dob'] ?? '',
+					// 屬性資料
+					'series'          => $item->get_meta('pa_series'),
+					'sessions'        => $item->get_meta('pa_sessions'),
+					'ladder'          => $item->get_meta('pa_ladder'),
+				];
+
+				// 如果為大人及小孩商品,則更新屬性資料
+				if ($product_id === 3943 || $product->get_name() === '小孩') {
+					$this->update_parent_attributes($order, $formate_orders, $index, $parent_product_id, $parent_variation_id);
+				} elseif ($product_id === 3941 || $product->get_name() === '大人') {
+					// 大人則更新 parent 資料
+					$formate_orders[ $index ]['adult_name']  = $adult_data['adult_name'] ?? '';
+					$formate_orders[ $index ]['adult_email'] = $adult_data['adult_email'] ?? '';
+					$formate_orders[ $index ]['adult_phone'] = $adult_data['adult_phone'] ?? '';
+					$this->update_parent_attributes($order, $formate_orders, $index, $parent_product_id, $parent_variation_id);
 				}
-				$product_id = $product->get_id();
-				// 改成只取得篩選的活動商品
-				$parent_id = $product->get_parent_id();
-				switch (true) {
-					// 如果是大人或小孩，則記錄在parent_variation_id欄位上
-					case $product_id === 3943 || $product->get_name() === '小孩':
-						$parent_product_id = $item->get_meta('parent_product_id');
-						if ( $variable_product_ids === $parent_product_id) {
-							$formate_orders[ $index ]['addChild'] = ( $formate_orders[ $index ]['addChild'] ?? 0 ) + $item->get_quantity();
-						}
-						break;
-					case $product_id === 3941 || $product->get_name() === '大人':
-						$parent_product_id = $item->get_meta('parent_product_id');
-						if ( $variable_product_ids === $parent_product_id) {
-							$formate_orders[ $index ]['addGrownUp'] = ( $formate_orders[ $index ]['addGrownUp'] ?? 0 )+$item->get_quantity();
-						}
-						break;
-					case $product_id === 5618 || $product->get_name() === '營隊精華紀錄短片（60秒）':
-						$parent_product_id = $item->get_meta('parent_product_id');
-						if ( $variable_product_ids === $parent_product_id) {
-							$formate_orders[ $index ]['addVideo'] = ( $formate_orders[ $index ]['addVideo'] ?? 0 )+$item->get_quantity();
-						}
-						break;
-					case $product_id === 5620 || $product->get_name() === '實體A5相冊（20張照片）':
-						$parent_product_id = $item->get_meta('parent_product_id');
-						if ( $variable_product_ids === $parent_product_id) {
-							$formate_orders[ $index ]['addPhoto'] = ( $formate_orders[ $index ]['addPhoto'] ?? 0 )+$item->get_quantity();
-						}
-						break;
-					// 例外情況:如果不是變化類型，但是商品ID符合，則從item meta取得要匹配的屬性值，並找到匹配的變化類型 ID
-					case $product_id && (int) $variable_product_ids === $product_id:
-						$attributes_values =[];
-						// 從$item meta取得要匹配的屬性值
-						$attributes_to_match = [
-							strtolower(rawurlencode('場次')) => $item->get_meta('場次', true),
-							strtolower(rawurlencode('梯次')) => $item->get_meta('梯次', true),
-						];
-						if ($product && $product->is_type('variable')) {
-							// 獲取所有變化類型
-							$variations = $product->get_children();
-							foreach ($variations as $variation_id) {
-								// 獲取變化類型對象
-								$variation = wc_get_product($variation_id);
-								if ($variation) {
-									// 獲取變化類型的屬性
-									$variation_attributes = $variation->get_attributes();
-									// 檢查屬性是否匹配
-									$is_match = true;
-									foreach ($attributes_to_match as $attribute_name => $attribute_value) {
-										if (!isset($variation_attributes[ $attribute_name ]) || $variation_attributes[ $attribute_name ] !== $attribute_value) {
-											$is_match = false;
-											break;
-										}
-									}
-									if ($is_match) {
-										// 找到匹配的變化類型 ID
-										// 取得變體屬性
-										foreach ($variation_attributes as $key => $value) {
-											$attributes_values[] = $value;
-										}
-										// 記錄商品 ID
-										$product_id = $variation_id;
-										break; // 結束迴圈
-									}
-								}
-							}
-						}
-						// 組合變體屬性名稱
-						$attributes_string = \implode( ', ', $attributes_values );
-
-						$formate_orders[ $index ]['products'][] = [
-							'id'                => $product_id,
-							'name'              => $product->get_name(),
-							'attributes_string' => $attributes_string,
-							'qty'               => $item->get_quantity(),
-						];
-						break;
-					// 取得訂單資料與商品資料
-					default:
-						if ($parent_id && (int) $variable_product_ids === $parent_id && $product->is_type( 'variation' )) {
-							$parent_product = wc_get_product( $parent_id );
-							// 取得變體屬性
-							$attributes        = $product->get_attributes();
-							$attributes_values =[];
-							$series_value      ='';
-							foreach ($attributes as $key => $value) {
-								if ($key === 'pa_series') {
-									$series_value = rawurldecode($value);
-									continue;
-								}
-								if (strpos($key, 'pa_') !== false) {
-									$attributes_values[] = rawurldecode($value);
-									continue;
-								}
-								$attributes_values[] = $value;
-							}
-
-							$attributes_string = \implode( ', ', $attributes_values );
-							// 記錄商品資料
-							$formate_orders[ $index ]['products'][] = [
-								'id'                => $product_id,
-								'name'              => $parent_product->get_name(),
-								'series_value'      => $series_value,
-								'attributes_string' => $attributes_string,
-								'qty'               => $item->get_quantity(),
-								'$test_msg'         =>$test_msg,
-							];
-						}
-
-						break;
-				}
+				++$index;
 			}
-			++$index;
 		}
 
 		// 取得 WooCommerce 訂單總數
@@ -295,5 +183,68 @@ final class Order {
 		// 設置headers x-wp-total
 		// $response->header( 'X-WP-Total', strval($processing_orders_count) );
 		return $response;
+	}
+	/**
+	 * Get Child Info Array
+	 *
+	 * @param int $item_id Item ID.
+	 * @return array<string, string>
+	 */
+	public function get_child_info_array( $item_id ) {
+		$child_info = wc_get_order_item_meta($item_id, '_child_info', true);
+		$child_data = [];
+
+		if (!empty($child_info)) {
+			foreach ($child_info as $value) {
+				$child_info_array = json_decode($value, true);
+				if (is_array($child_info_array)) {
+					$child_data = $child_info_array;
+				}
+			}
+		}
+
+		return $child_data;
+	}
+	/**
+	 * Get Adults Info Array
+	 *
+	 * @param int $item_id Item ID.
+	 * @return array<string, string>
+	 */
+	public function get_adult_info_array( $item_id ) {
+		$adult_info = wc_get_order_item_meta($item_id, '_adult_info', true);
+		$adult_data = [];
+
+		if (!empty($adult_info)) {
+			foreach ($adult_info as $value) {
+				$adult_info_array = json_decode($value, true);
+				if (is_array($adult_info_array)) {
+					$adult_data = $adult_info_array;
+				}
+			}
+		}
+
+		return $adult_data;
+	}
+	/**
+	 * Update Parent Attributes(加購大人/小孩更新屬性資料)
+	 *
+	 * @param \WC_Order         $order Order.
+	 * @param array<int, array> $formate_orders Formate Orders.參考傳遞
+	 * @param int               $index Index.
+	 * @param int               $parent_product_id Parent Product ID.
+	 * @param int               $parent_variation_id Parent Variation ID.
+	 * @return void
+	 */
+	public function update_parent_attributes( $order, &$formate_orders, $index, $parent_product_id, $parent_variation_id ) {
+		/** @var \WC_Order_Item_Product $item */
+		foreach ($order->get_items() as $item) {
+			if ($item->get_product_id() === $parent_product_id && $item->get_variation_id() === $parent_variation_id) {
+				$formate_orders[ $index ]['series']   = $item->get_meta('pa_series');
+				$formate_orders[ $index ]['sessions'] = $item->get_meta('pa_sessions');
+				$formate_orders[ $index ]['ladder']   = $item->get_meta('pa_ladder');
+				break;
+			}
+		}
 	}
 }
