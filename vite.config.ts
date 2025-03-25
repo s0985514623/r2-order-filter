@@ -2,6 +2,7 @@ import react from '@vitejs/plugin-react'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import alias from '@rollup/plugin-alias'
 import path from 'path'
+import fs from 'fs'
 
 // import liveReload from 'vite-plugin-live-reload'
 

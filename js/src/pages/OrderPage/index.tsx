@@ -77,6 +77,8 @@ const MemberPage: React.FC = () => {
 
 		const filtered = ordersData.filter((item) => {
 			return Object.keys(values).every((key) => {
+				// 如果 values[key] 為 undefined 或空陣列，跳過篩選
+			if (values[key] === undefined || values[key].length === 0) return true
 				return values[key]?.includes(item[key])
 			})
 		})
