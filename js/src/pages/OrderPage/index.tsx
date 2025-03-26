@@ -72,16 +72,22 @@ const MemberPage: React.FC = () => {
 
 	// 處理AttributesFilter
 	const handleAttributesFilter = (values: any) => {
+		// console.log("🚀 ~ handleAttributesFilter ~ values:", values)
 		if (!values.series && !values.sessions && !values.ladder)
 			return setFilteredData(ordersData)
 
 		const filtered = ordersData.filter((item) => {
 			return Object.keys(values).every((key) => {
-				// 如果 values[key] 為 undefined 或空陣列，跳過篩選
-			if (values[key] === undefined || values[key].length === 0) return true
-				return values[key]?.includes(item[key])
+				// 如果 values[key] 是 undefined，直接跳過（不檢查這個條件）
+				if (values[key] === undefined || values[key] === "") return true;
+				// 如果 item[key] 自己是 undefined，就濾掉
+				if (item[key] === undefined || item[key] === "") return false;
+
+				// 確認 item[key] 是否等於 values[key]
+				return item[key] === values[key];
 			})
 		})
+		// console.log("🚀 ~ filtered ~ filtered:", filtered)
 		setFilteredData(filtered)
 	}
 	// Table 分頁、排序、篩選

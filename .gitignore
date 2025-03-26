@@ -32,5 +32,6 @@ release/*
 *.sw?
 
 /vendor/
-
+localhost-key.pem
+localhost.pem
 composer.lock

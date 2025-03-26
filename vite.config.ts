@@ -9,6 +9,15 @@ import fs from 'fs'
 import { v4wp } from '@kucrut/vite-for-wp'
 
 export default {
+	server: {
+    https: {
+      key: fs.readFileSync('./localhost-key.pem'),
+      cert: fs.readFileSync('./localhost.pem'),
+    },
+    host: 'localhost',
+    port: 5173,
+    cors: true,
+  },
   plugins: [
     alias(),
     react(),
