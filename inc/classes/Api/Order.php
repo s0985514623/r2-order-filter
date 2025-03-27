@@ -73,7 +73,7 @@ final class Order {
 		$args = [
 			'limit'  => isset($params['posts_per_page'])?$params['posts_per_page']:-1, // -1 表示取得所有商品
 			'paged'  => isset($params['page'])?$params['page']:1,
-			'status' => [ 'completed', 'processing' ],
+			'status' => [ 'completed', 'processing', 'on-hold' ],
 		];
 		// 如果有設定日期，則加入日期條件
 		if ($initial_date && $final_date) {
@@ -112,10 +112,16 @@ final class Order {
 			// 取得商品資料 =>改寫整個迴圈
 			/** @var \WC_Order_Item_Product $item */
 			foreach ($order->get_items() as $item_id => $item) {
-				// 取得商品資料
-				$product = $item->get_product();
+				// 只取得搜尋的商品資料
 				// 取得product_id $product_id 即為parent_id
 				$product_id = $item->get_product_id();
+				if ($search_product_id !== 0) {
+					if ($product_id !== (int) $search_product_id) {
+						continue;
+					}
+				}
+				// 取得商品資料
+				$product = $item->get_product();
 				// 取得parent_product_id 和 parent_variation_id(如果為加購商品)
 				$parent_product_id   = (int) $item->get_meta('parent_product_id');
 				$parent_variation_id = (int) $item->get_meta('parent_variation_id');
@@ -156,6 +162,10 @@ final class Order {
 
 				// 如果為大人及小孩商品,則更新屬性資料
 				if ($product_id === 3943 || $product->get_name() === '小孩') {
+					// 小孩則更新 parent 資料
+					$formate_orders[ $index ]['adult_name']  = '';
+					$formate_orders[ $index ]['adult_email'] = '';
+					$formate_orders[ $index ]['adult_phone'] = '';
 					$this->update_parent_attributes($order, $formate_orders, $index, $parent_product_id, $parent_variation_id);
 				} elseif ($product_id === 3941 || $product->get_name() === '大人') {
 					// 大人則更新 parent 資料
