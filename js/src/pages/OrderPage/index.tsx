@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Table, Button, Typography  } from 'antd'
+import { Table, Button, Typography } from 'antd'
 import Filter from 'components/Filter'
 import AttributesFilter from 'components/AttributesFilter'
 import { exportCSV } from 'hooks/useExportCSV'
@@ -7,7 +7,7 @@ import { useGetList } from '@/hooks/useGetList'
 import type { OrdersDataArray, TAttributesFilter } from './type'
 import { columnsSetting } from './TableColumns'
 
-const { Text } = Typography;
+const { Text } = Typography
 
 const MemberPage: React.FC = () => {
 	// 訂單資料
@@ -81,12 +81,12 @@ const MemberPage: React.FC = () => {
 		const filtered = ordersData.filter((item) => {
 			return Object.keys(values).every((key) => {
 				// 如果 values[key] 是 undefined，直接跳過（不檢查這個條件）
-				if (values[key] === undefined || values[key] === "") return true;
+				if (values[key] === undefined || values[key] === '') return true
 				// 如果 item[key] 自己是 undefined，就濾掉
-				if (item[key] === undefined || item[key] === "") return false;
+				if (item[key] === undefined || item[key] === '') return false
 
 				// 確認 item[key] 是否等於 values[key]
-				return item[key] === values[key];
+				return item[key] === values[key]
 			})
 		})
 		// console.log("🚀 ~ filtered ~ filtered:", filtered)
@@ -97,23 +97,31 @@ const MemberPage: React.FC = () => {
 	// 當ordersData有變動時,setFilteredData
 	useEffect(() => {
 		setFilteredData(ordersData)
-		setAttributesFilter((prev) => {
-			const newFilter = { ...prev }
-			Object.keys(newFilter).forEach((key) => {
-				ordersData.forEach((order) => {
-					const value = order[key] as string
-					if (value && !newFilter[key]?.includes(value)) {
-						newFilter[key]?.push(value)
+		// 重新建立 attributesFilter
+		const newFilter: Record<string, string[]> = {}
+
+		ordersData.forEach((order) => {
+			Object.entries(order).forEach(([key, value]) => {
+				if (
+					typeof value === 'string' &&
+					value.trim() !== '' // 避免空白字串（含空格）
+				) {
+					if (!newFilter[key]) {
+						newFilter[key] = []
 					}
-				})
+					if (!newFilter[key].includes(value)) {
+						newFilter[key].push(value)
+					}
+				}
 			})
-			return newFilter
 		})
+
+		setAttributesFilter(newFilter)
 	}, [ordersData])
 
 	return (
 		<div className="w-full relative">
-			<h1>訂單篩選</h1>
+			<h1>點名表</h1>
 			<div className="pr-5 flex flex-col gap-10">
 				<Filter onFilter={handleFilterChange} />
 				<AttributesFilter
@@ -132,11 +140,11 @@ const MemberPage: React.FC = () => {
 						let totalChild = 0
 						let totalAdult = 0
 						filteredData.forEach((order) => {
-							if(order?.child_name){
-								totalChild +=1
+							if (order?.child_name) {
+								totalChild += 1
 							}
-							if(order?.adult_name){
-								totalAdult +=1
+							if (order?.adult_name) {
+								totalAdult += 1
 							}
 						})
 						return (
@@ -153,7 +161,7 @@ const MemberPage: React.FC = () => {
 									</Table.Summary.Cell>
 								</Table.Summary.Row>
 							</>
-						);
+						)
 					}}
 				></Table>
 			</div>
