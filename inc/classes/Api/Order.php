@@ -112,16 +112,17 @@ final class Order {
 			// 取得商品資料 =>改寫整個迴圈
 			/** @var \WC_Order_Item_Product $item */
 			foreach ($order->get_items() as $item_id => $item) {
-				// 只取得搜尋的商品資料
+
 				// 取得product_id $product_id 即為parent_id
 				$product_id = $item->get_product_id();
+				// 取得商品資料
+				$product = $item->get_product();
+				// 只取得搜尋的商品資料以及加購大人小孩商品
 				if ($search_product_id !== 0) {
-					if ($product_id !== (int) $search_product_id) {
+					if ($product_id !== (int) $search_product_id&&$product->get_name() !== '大人'&&$product->get_name() !== '小孩') {
 						continue;
 					}
 				}
-				// 取得商品資料
-				$product = $item->get_product();
 				// 取得parent_product_id 和 parent_variation_id(如果為加購商品)
 				$parent_product_id   = (int) $item->get_meta('parent_product_id');
 				$parent_variation_id = (int) $item->get_meta('parent_variation_id');
