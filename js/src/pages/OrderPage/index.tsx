@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import { Table, Button, Empty } from 'antd'
+import { Table, Button, Typography  } from 'antd'
 import Filter from 'components/Filter'
 import AttributesFilter from 'components/AttributesFilter'
 import { exportCSV } from 'hooks/useExportCSV'
 import { useGetList } from '@/hooks/useGetList'
 import type { OrdersDataArray, TAttributesFilter } from './type'
 import { columnsSetting } from './TableColumns'
+
+const { Text } = Typography;
 
 const MemberPage: React.FC = () => {
 	// 訂單資料
@@ -126,6 +128,33 @@ const MemberPage: React.FC = () => {
 					onChange={handleTableChange}
 					loading={isLoading}
 					scroll={{ x: 'max-content' }}
+					summary={(filteredData) => {
+						let totalChild = 0
+						let totalAdult = 0
+						filteredData.forEach((order) => {
+							if(order?.child_name){
+								totalChild +=1
+							}
+							if(order?.adult_name){
+								totalAdult +=1
+							}
+						})
+						return (
+							<>
+								<Table.Summary.Row>
+									<Table.Summary.Cell index={0}>總計</Table.Summary.Cell>
+									<Table.Summary.Cell index={1}>小孩</Table.Summary.Cell>
+									<Table.Summary.Cell index={2} colSpan={4}>
+										<Text>{totalChild}</Text>
+									</Table.Summary.Cell>
+									<Table.Summary.Cell index={6}>大人</Table.Summary.Cell>
+									<Table.Summary.Cell index={7}>
+										<Text>{totalAdult}</Text>
+									</Table.Summary.Cell>
+								</Table.Summary.Row>
+							</>
+						);
+					}}
 				></Table>
 			</div>
 			<div className="exportMember" style={{ marginBottom: 16, marginTop: 16 }}>
