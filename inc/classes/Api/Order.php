@@ -317,7 +317,8 @@ final class Order {
 			/** @var \WC_Order_Item_Product $item */
 			foreach ($order->get_items() as $item_id => $item) {
 				// 取得商品資料
-				$product = $item->get_product();
+				$product    = $item->get_product();
+				$child_data =[];
 				// 如果為加購商品，則累積總額與小計
 				if ($product->get_name() === '大人' || $product->get_name() === '小孩') {
 					if ($product->get_name() === '小孩') {
@@ -334,25 +335,33 @@ final class Order {
 				}
 				// 只取得符合商品分類的訂單
 				if ($search_product_cat !== ''||!empty($search_product_cat)) {
+					$is_conform = false;
 					$product_id = $product->get_id();
 					// 取得分類
 					$terms = get_the_terms( $product_id, 'product_cat' );
+
 					if ( ! is_wp_error( $terms ) && ! empty( $terms ) ) {
 						foreach ( $terms as $term ) {
-							$top_category = $term;
-
-							// 如果有父分類，開始往上查祖先
+							if ($term->slug === $search_product_cat) {
+								$is_conform = true;
+								break;
+							}
+							// 如果有父分類，則取得父分類的term
 							if ( $term->parent ) {
 								$ancestors = get_ancestors( $term->term_id, 'product_cat' );
-
 								if ( ! empty( $ancestors ) ) {
 									// 取得最上層的 term_id（陣列最後一個是最上層）
-									$top_term_id  = end( $ancestors );
-									$top_category = get_term( $top_term_id, 'product_cat' );
+									$top_term_id = end( $ancestors );
+									$top_term    = get_term( $top_term_id, 'product_cat' );
+									if ($top_term->slug === $search_product_cat) {
+										$is_conform = true;
+										break;
+									}
 								}
 							}
 						}
-						if ($top_category->name !== $search_product_cat) {
+						// 如果不符合分類，則跳過
+						if (!$is_conform) {
 							continue;
 						}
 					}
@@ -390,7 +399,7 @@ final class Order {
 
 				// 取得小孩資料
 				$child_info = $item->get_meta('_child_info');
-				$child_data =[];
+
 				foreach ($child_info as $value) {
 					// 轉換為 PHP 陣列
 					$child_info_array = json_decode($value, true);

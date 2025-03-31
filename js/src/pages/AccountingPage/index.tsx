@@ -21,7 +21,7 @@ const MemberPage: React.FC = () => {
 	} = useGetList<AccountingDataArray>({
 		resource: 'accounting_orders',
 	})
-		// console.log("🚀 ~ accounting_orders:", ordersData)
+		console.log("🚀 ~ accounting_orders:", ordersData)
 
 	// 選擇的資料
 	const [
@@ -41,7 +41,7 @@ const MemberPage: React.FC = () => {
 		newSelectedRowKeys: React.Key[],
 		selectedRows: AccountingDataArray[],
 	) => {
-		console.log("🚀 ~ newSelectedRowKeys:", newSelectedRowKeys)
+		// console.log("🚀 ~ newSelectedRowKeys:", newSelectedRowKeys)
 		setSelectedRowKeys(newSelectedRowKeys)
 		setSelectedRowsArray(selectedRows)
 	}
