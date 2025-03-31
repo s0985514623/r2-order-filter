@@ -7,7 +7,7 @@ export const appName = window?.[APP_DOMAIN]?.env?.APP_NAME || 'R2 Order Filter'
 export const kebab = window?.[APP_DOMAIN]?.env?.KEBAB || 'r2-order-filter'
 export const app1Selector = window?.[APP_DOMAIN]?.env?.APP1_SELECTOR || 'r2_order_filter'
 export const app2Selector =
-	window?.[APP_DOMAIN]?.env?.APP2_SELECTOR || 'r2_order_filter_metabox'
+	window?.[APP_DOMAIN]?.env?.APP2_SELECTOR || 'r2_order_filter_accounting'
 export const apiUrl = window?.wpApiSettings?.root || '/wp-json'
 export const ajaxUrl =
 	window?.[APP_DOMAIN]?.env?.ajaxUrl || '/wp-admin/admin-ajax.php'
