@@ -137,50 +137,136 @@ final class Order {
 				$adult_data = $this->get_adult_info_array($item_id);
 				// 取得訂單編號
 				$order_number = $order->get_order_number();
-				// 格式化訂單資料
-				$formate_orders[ $index ] = [
-					// 訂單資料
-					'product_name'    => $product->get_name(),
-					'number'          => $order_number,
-					'edit_link'       => get_edit_post_link($order->get_id()), // 取得編輯連結
-					// 'date'      => $order->get_date_created()?$order->get_date_created()->date('Y-m-d'):'null',
-					// 'total'     => $order->get_total(),
-					// 'note'      => $order->get_customer_note(),
-					'status'          => $order->get_status(),
-					'status_label'    => wc_get_order_status_name($order->get_status()),
-					// 家長資料
-					'adult_name'      => $order->get_billing_first_name(),
-					'adult_email'     => $order->get_billing_email(),
-					'adult_phone'     => $order->get_billing_phone(),
-					// 學員資料
-					'key'             =>$index,
-					'group'           =>0,
-					'child_name'      => $child_data['child_name'] ?? '',
-					'grade'           => '',
-					'child_dietary'   => $child_data['child_dietary'] ?? '',
-					'child_id_number' => $child_data['child_id_number'] ?? '',
-					'child_dob'       => $child_data['child_dob'] ?? '',
-					// 屬性資料
-					'series'          => $item->get_meta('pa_series'),
-					'sessions'        => $item->get_meta('pa_sessions'),
-					'ladder'          => $item->get_meta('pa_ladder'),
-				];
+				
+				// 判断是否有小孩或大人数据
+				$has_child_data = !empty($child_data) && count($child_data) > 0;
+				$has_adult_data = !empty($adult_data) && count($adult_data) > 0;
+				
+				// 根据小孩資料数量创建多条记录
+				if ($has_child_data) {
+					foreach ($child_data as $i => $child) {
+						// 格式化訂單資料
+						$formate_orders[ $index ] = [
+							// 訂單資料
+							'product_name'    => $product->get_name(),
+							'number'          => $order_number,
+							'edit_link'       => get_edit_post_link($order->get_id()), // 取得編輯連結
+							'status'          => $order->get_status(),
+							'status_label'    => wc_get_order_status_name($order->get_status()),
+							// 家長資料
+							'adult_name'      => $order->get_billing_first_name(),
+							'adult_email'     => $order->get_billing_email(),
+							'adult_phone'     => $order->get_billing_phone(),
+							// 學員資料
+							'key'             => $index,
+							'group'           => $i > 0 ? 1 : 0, // 第一筆為0，其他為1
+							'child_name'      => $child['child_name'] ?? '',
+							'grade'           => '',
+							'child_dietary'   => $child['child_dietary'] ?? '',
+							'child_id_number' => $child['child_id_number'] ?? '',
+							'child_dob'       => $child['child_dob'] ?? '',
+							// 屬性資料
+							'series'          => $item->get_meta('pa_series'),
+							'sessions'        => $item->get_meta('pa_sessions'),
+							'ladder'          => $item->get_meta('pa_ladder'),
+						];
 
-				// 如果為大人及小孩商品,則更新屬性資料
-				if ($product_id === 3943 || $product->get_name() === '小孩') {
-					// 小孩則更新 parent 資料
-					$formate_orders[ $index ]['adult_name']  = '';
-					$formate_orders[ $index ]['adult_email'] = '';
-					$formate_orders[ $index ]['adult_phone'] = '';
-					$this->update_parent_attributes($order, $formate_orders, $index, $parent_product_id, $parent_variation_id);
-				} elseif ($product_id === 3941 || $product->get_name() === '大人') {
-					// 大人則更新 parent 資料
-					$formate_orders[ $index ]['adult_name']  = $adult_data['adult_name'] ?? '';
-					$formate_orders[ $index ]['adult_email'] = $adult_data['adult_email'] ?? '';
-					$formate_orders[ $index ]['adult_phone'] = $adult_data['adult_phone'] ?? '';
-					$this->update_parent_attributes($order, $formate_orders, $index, $parent_product_id, $parent_variation_id);
+						// 如果為大人及小孩商品,則更新屬性資料
+						if ($product_id === 3943 || $product->get_name() === '小孩') {
+							// 小孩則更新 parent 資料
+							$formate_orders[ $index ]['adult_name']  = '';
+							$formate_orders[ $index ]['adult_email'] = '';
+							$formate_orders[ $index ]['adult_phone'] = '';
+							$this->update_parent_attributes($order, $formate_orders, $index, $parent_product_id, $parent_variation_id);
+						} elseif ($product_id === 3941 || $product->get_name() === '大人') {
+							// 大人則更新 parent 資料
+							if ($has_adult_data && isset($adult_data[0])) {
+								$formate_orders[ $index ]['adult_name']  = $adult_data[0]['adult_name'] ?? '';
+								$formate_orders[ $index ]['adult_email'] = $adult_data[0]['adult_email'] ?? '';
+								$formate_orders[ $index ]['adult_phone'] = $adult_data[0]['adult_phone'] ?? '';
+							}
+							$this->update_parent_attributes($order, $formate_orders, $index, $parent_product_id, $parent_variation_id);
+						}
+						++$index;
+					}
+				} 
+				// 根据大人資料数量创建多条记录
+				else if ($has_adult_data) {
+					foreach ($adult_data as $i => $adult) {
+						// 格式化訂單資料
+						$formate_orders[ $index ] = [
+							// 訂單資料
+							'product_name'    => $product->get_name(),
+							'number'          => $order_number,
+							'edit_link'       => get_edit_post_link($order->get_id()), // 取得編輯連結
+							'status'          => $order->get_status(),
+							'status_label'    => wc_get_order_status_name($order->get_status()),
+							// 家長資料
+							'adult_name'      => $adult['adult_name'] ?? '',
+							'adult_email'     => $adult['adult_email'] ?? '',
+							'adult_phone'     => $adult['adult_phone'] ?? '',
+							// 學員資料
+							'key'             => $index,
+							'group'           => $i > 0 ? 1 : 0, // 第一筆為0，其他為1
+							'child_name'      => '',
+							'grade'           => '',
+							'child_dietary'   => '',
+							'child_id_number' => '',
+							'child_dob'       => '',
+							// 屬性資料
+							'series'          => $item->get_meta('pa_series'),
+							'sessions'        => $item->get_meta('pa_sessions'),
+							'ladder'          => $item->get_meta('pa_ladder'),
+						];
+
+						$this->update_parent_attributes($order, $formate_orders, $index, $parent_product_id, $parent_variation_id);
+						++$index;
+					}
 				}
-				++$index;
+				else {
+					// 沒有小孩資料或大人資料時，按照原有方式處理
+					// 格式化訂單資料
+					$formate_orders[ $index ] = [
+						// 訂單資料
+						'product_name'    => $product->get_name(),
+						'number'          => $order_number,
+						'edit_link'       => get_edit_post_link($order->get_id()), // 取得編輯連結
+						'status'          => $order->get_status(),
+						'status_label'    => wc_get_order_status_name($order->get_status()),
+						// 家長資料
+						'adult_name'      => $order->get_billing_first_name(),
+						'adult_email'     => $order->get_billing_email(),
+						'adult_phone'     => $order->get_billing_phone(),
+						// 學員資料
+						'key'             => $index,
+						'group'           => 0,
+						'child_name'      => '',
+						'grade'           => '',
+						'child_dietary'   => '',
+						'child_id_number' => '',
+						'child_dob'       => '',
+						// 屬性資料
+						'series'          => $item->get_meta('pa_series'),
+						'sessions'        => $item->get_meta('pa_sessions'),
+						'ladder'          => $item->get_meta('pa_ladder'),
+					];
+
+					// 如果為大人及小孩商品,則更新屬性資料
+					if ($product_id === 3943 || $product->get_name() === '小孩') {
+						// 小孩則更新 parent 資料
+						$formate_orders[ $index ]['adult_name']  = '';
+						$formate_orders[ $index ]['adult_email'] = '';
+						$formate_orders[ $index ]['adult_phone'] = '';
+						$this->update_parent_attributes($order, $formate_orders, $index, $parent_product_id, $parent_variation_id);
+					} elseif ($product_id === 3941 || $product->get_name() === '大人') {
+						// 大人則更新 parent 資料
+						$formate_orders[ $index ]['adult_name']  = '';
+						$formate_orders[ $index ]['adult_email'] = '';
+						$formate_orders[ $index ]['adult_phone'] = '';
+						$this->update_parent_attributes($order, $formate_orders, $index, $parent_product_id, $parent_variation_id);
+					}
+					++$index;
+				}
 			}
 		}
 
@@ -448,13 +534,15 @@ final class Order {
 	 */
 	public function get_child_info_array( $item_id ) {
 		$child_info = wc_get_order_item_meta($item_id, '_child_info', true);
+		//log
+		// error_log(print_r($child_info, true));
 		$child_data = [];
 
 		if (!empty($child_info)) {
 			foreach ($child_info as $value) {
 				$child_info_array = json_decode($value, true);
 				if (is_array($child_info_array)) {
-					$child_data = $child_info_array;
+					$child_data[] = $child_info_array;
 				}
 			}
 		}
@@ -475,7 +563,7 @@ final class Order {
 			foreach ($adult_info as $value) {
 				$adult_info_array = json_decode($value, true);
 				if (is_array($adult_info_array)) {
-					$adult_data = $adult_info_array;
+					$adult_data[] = $adult_info_array;
 				}
 			}
 		}
