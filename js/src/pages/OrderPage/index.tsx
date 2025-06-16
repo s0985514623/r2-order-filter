@@ -14,6 +14,7 @@ const MemberPage: React.FC = () => {
 	const [filteredData, setFilteredData] = useState<OrdersDataArray[]>([])
 	// 屬性篩選
 	const [attributesFilter, setAttributesFilter] = useState<TAttributesFilter>({
+		school: [],
 		series: [],
 		sessions: [],
 		ladder: [],
@@ -76,7 +77,7 @@ const MemberPage: React.FC = () => {
 	// 處理AttributesFilter
 	const handleAttributesFilter = (values: any) => {
 		// console.log("🚀 ~ handleAttributesFilter ~ values:", values)
-		if (!values.series && !values.sessions && !values.ladder)
+		if (!values.series && !values.sessions && !values.ladder && !values.school)
 			return setFilteredData(ordersData)
 
 		const filtered = ordersData.filter((item) => {

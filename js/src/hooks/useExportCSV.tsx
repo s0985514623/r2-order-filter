@@ -11,16 +11,17 @@ export const exportCSV = () => {
 		setLoading(true)
 		const today = dayjs().format('YYYY-MM-DD')
 		const productName = selectedRowsArray[0].product_name
-		const series = selectedRowsArray[0].series
-		const sessions = selectedRowsArray[0].sessions
-		const ladder = selectedRowsArray[0].ladder
-		const filenameStr = `${today} ${productName} ${series}-${sessions}-${ladder} 篩選資料`
+		const school = selectedRowsArray[0].school ? `-${selectedRowsArray[0].school}` : ''
+		const series = selectedRowsArray[0].series ? `-${selectedRowsArray[0].series}` : ''
+		const sessions = selectedRowsArray[0].sessions ? `-${selectedRowsArray[0].sessions}` : ''
+		const ladder = selectedRowsArray[0].ladder ? `-${selectedRowsArray[0].ladder}` : ''
+		const filenameStr = `${today} ${productName} ${school}${series}${sessions}${ladder} 篩選資料`
 		// 转换数据，将嵌套的对象转换为适合CSV的字符串
 
 		const transformedData = selectedRowsArray.map((order) => ({
 			'姓名': order.child_name,
-			'年級': order.grade,
 			'健康/飲食': order.child_dietary,
+			'健康備註': order.child_health_notes,
 			'身分證': order.child_id_number,
 			'出生年月日': order.child_dob,
 			'家長': order.adult_name,

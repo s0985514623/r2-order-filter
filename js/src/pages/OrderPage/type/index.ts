@@ -20,6 +20,7 @@ export type OrdersDataArray = {
 }
 
 export type TAttributesFilter={
+	school?: string[]
 	series?: string[]
 	sessions?: string[]
 	ladder?: string[]

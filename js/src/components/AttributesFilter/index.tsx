@@ -1,17 +1,26 @@
 import React from 'react'
 import { Collapse, Form, Select, Button } from 'antd'
-import type {TAttributesFilter} from '@/pages/OrderPage/type'
+import type { TAttributesFilter } from '@/pages/OrderPage/type'
 import { nanoid } from 'nanoid';
 const { Option } = Select
 
-const index: React.FC<{ onFilter: (values: any) => void,attributesFilter:TAttributesFilter }> = ({ onFilter,attributesFilter }) => {
+const index: React.FC<{ onFilter: (values: any) => void, attributesFilter: TAttributesFilter }> = ({ onFilter, attributesFilter }) => {
 	const [form] = Form.useForm()
 	const handleOnFinish = (values: any) => {
 		onFilter(values)
 	}
 	const children = (
 		<Form onFinish={handleOnFinish} layout="vertical" form={form}>
-			<div className="grid grid-cols-3 gap-6">
+			<div className="grid grid-cols-4 gap-6">
+				<Form.Item label="校區" name="school">
+					<Select placeholder="選擇校區" allowClear>
+						{attributesFilter?.school?.map((attributes) => (
+							<Option key={nanoid()} value={attributes}>
+								{attributes}
+							</Option>
+						))}
+					</Select>
+				</Form.Item>
 				<Form.Item label="系列" name="series">
 					<Select placeholder="選擇系列" allowClear>
 						{attributesFilter?.series?.map((attributes) => (
@@ -22,7 +31,7 @@ const index: React.FC<{ onFilter: (values: any) => void,attributesFilter:TAttrib
 					</Select>
 				</Form.Item>
 				<Form.Item label="場次" name="sessions">
-				<Select placeholder="選擇系列" allowClear >
+					<Select placeholder="選擇場次" allowClear >
 						{attributesFilter?.sessions?.map((attributes) => (
 							<Option key={nanoid()} value={attributes}>
 								{attributes}
@@ -31,7 +40,7 @@ const index: React.FC<{ onFilter: (values: any) => void,attributesFilter:TAttrib
 					</Select>
 				</Form.Item>
 				<Form.Item label="梯次" name="ladder">
-				<Select placeholder="選擇系列" allowClear>
+					<Select placeholder="選擇梯次" allowClear>
 						{attributesFilter?.ladder?.map((attributes) => (
 							<Option key={nanoid()} value={attributes}>
 								{attributes}

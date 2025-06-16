@@ -128,6 +128,16 @@ final class Order {
 						continue;
 					}
 				}
+				// 取得商品原始名稱
+				if ($product && $product->is_type('variation')) {
+					// 對於可變商品，取得父商品
+					$parent_id = $product->get_parent_id();
+					$parent_product = wc_get_product($parent_id);
+					$original_name = $parent_product ? $parent_product->get_name() : $product->get_name();
+				} else {
+					// 對於一般商品直接取名稱
+					$original_name = $product->get_name();
+				}
 				// 取得parent_product_id 和 parent_variation_id(如果為加購商品)
 				$parent_product_id   = (int) $item->get_meta('parent_product_id');
 				$parent_variation_id = (int) $item->get_meta('parent_variation_id');
@@ -148,7 +158,7 @@ final class Order {
 						// 格式化訂單資料
 						$formate_orders[ $index ] = [
 							// 訂單資料
-							'product_name'    => $product->get_name(),
+							'product_name'    => $original_name,
 							'number'          => $order_number,
 							'edit_link'       => get_edit_post_link($order->get_id()), // 取得編輯連結
 							'status'          => $order->get_status(),
@@ -161,11 +171,12 @@ final class Order {
 							'key'             => $index,
 							'group'           => $i > 0 ? 1 : 0, // 第一筆為0，其他為1
 							'child_name'      => $child['child_name'] ?? '',
-							'grade'           => '',
 							'child_dietary'   => $child['child_dietary'] ?? '',
+							'child_health_notes'=>$child['child_health_notes'] ?? '',
 							'child_id_number' => $child['child_id_number'] ?? '',
 							'child_dob'       => $child['child_dob'] ?? '',
 							// 屬性資料
+							'school'          => $item->get_meta('校區'),
 							'series'          => $item->get_meta('pa_series'),
 							'sessions'        => $item->get_meta('pa_sessions'),
 							'ladder'          => $item->get_meta('pa_ladder'),
