@@ -225,6 +225,7 @@ final class Order {
 							'child_id_number' => '',
 							'child_dob'       => '',
 							// 屬性資料
+							'school'          => $item->get_meta('校區'),
 							'series'          => $item->get_meta('pa_series'),
 							'sessions'        => $item->get_meta('pa_sessions'),
 							'ladder'          => $item->get_meta('pa_ladder'),
@@ -257,6 +258,7 @@ final class Order {
 						'child_id_number' => '',
 						'child_dob'       => '',
 						// 屬性資料
+						'school'          => $item->get_meta('校區'),
 						'series'          => $item->get_meta('pa_series'),
 						'sessions'        => $item->get_meta('pa_sessions'),
 						'ladder'          => $item->get_meta('pa_ladder'),
