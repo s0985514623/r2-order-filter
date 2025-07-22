@@ -177,11 +177,7 @@ final class Order {
 							'child_id_number' => $child['child_id_number'] ?? '',
 							'child_dob'       => $child['child_dob'] ?? '',
 							// 屬性資料
-							'school'          => $item->get_meta('校區') !== '' 
-							? $item->get_meta('校區') 
-							: ($item->get_meta(urlencode('校區')) !== '' 
-								? $item->get_meta(urlencode('校區')) 
-								: ''),
+							'school'          => Base::get_meta_fallback($item, '校區'),
 							'series'          => Base::decodeIfUtf8($item->get_meta('pa_series')),
 							'sessions'        => Base::decodeIfUtf8($item->get_meta('pa_sessions')),
 							'ladder'          => Base::decodeIfUtf8($item->get_meta('pa_ladder')),

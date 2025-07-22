@@ -31,4 +31,20 @@ abstract class Base {
 			return $str; // 如果不是 UTF-8，就回傳原字串
 		}
 	}
+
+	public static function get_meta_fallback($item, $key) {
+		$keys = [
+			$key,                                  // 中文原始 key
+			urlencode($key),                      // URL 編碼（大寫）
+			strtolower(urlencode($key)),          // URL 編碼（小寫）
+		];
+	
+		foreach ($keys as $k) {
+			$val = $item->get_meta($k);
+			if ($val !== '') {
+				return $val;
+			}
+		}
+		return '';
+	}
 }
