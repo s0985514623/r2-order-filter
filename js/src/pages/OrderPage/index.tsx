@@ -28,7 +28,7 @@ const MemberPage: React.FC = () => {
 	} = useGetList<OrdersDataArray>({
 		resource: 'orders',
 	})
-		// console.log("🚀 ~ ordersData:", ordersData)
+		console.log("🚀 ~ ordersData:", ordersData)
 
 	// 選擇的資料
 	const [

@@ -8,7 +8,8 @@ declare(strict_types=1);
 namespace J7\R2OrderFilter\Api;
 
 use J7\R2OrderFilter\Plugin;
-use J7\WpUtils\Classes\WP;
+use J7\WpUtils\Classes\WP;	
+use J7\R2OrderFilter\Utils\Base;
 
 /**
  * Class Order
@@ -176,12 +177,12 @@ final class Order {
 							'child_id_number' => $child['child_id_number'] ?? '',
 							'child_dob'       => $child['child_dob'] ?? '',
 							// 屬性資料
-							'school'          => $item->get_meta('校區'),
-							'series'          => $item->get_meta('pa_series'),
-							'sessions'        => $item->get_meta('pa_sessions'),
-							'ladder'          => $item->get_meta('pa_ladder'),
+							'school'          => $item->get_meta('校區')??$item->get_meta(urlencode('校區'))??'',
+							'series'          => Base::decodeIfUtf8($item->get_meta('pa_series')),
+							'sessions'        => Base::decodeIfUtf8($item->get_meta('pa_sessions')),
+							'ladder'          => Base::decodeIfUtf8($item->get_meta('pa_ladder')),
 						];
-
+						
 						// 如果為大人及小孩商品,則更新屬性資料
 						if ($product_id === 3943 || $product->get_name() === '小孩') {
 							// 小孩則更新 parent 資料
